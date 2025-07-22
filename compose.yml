@@ -1,0 +1,38 @@
+services:
+  mariadb:
+    image: mariadb:11.3.2
+    container_name: mariadb
+    restart: always
+    ports: 
+      - 3306:3306
+    volumes:
+      - mariadb-data:/var/lib/mysql:Z
+    environment:
+      MYSQL_ROOT_PASSWORD: ${DB_PASSWORD}
+    networks:
+      - mariadb-man
+      - db-con
+
+  phpmyadmin:
+    image: phpmyadmin:latest
+    restart: always
+    container_name: phpmyadmin
+    ports:
+      - 8081:80
+    environment:
+      - PMA_ARBITRARY=0
+      - PMA_HOST=mariadb
+      - PMA_VERBOSE="Rotarty Pub DB"
+      - UPLOAD_LIMIT=8M
+    networks:
+      - reverse-proxy
+      - mariadb-man
+networks:
+  reverse-proxy:
+    external: true
+  db-con:
+    external: true
+  mariadb-man:
+
+volumes:
+  mariadb-data:
