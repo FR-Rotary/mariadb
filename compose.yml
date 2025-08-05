@@ -3,22 +3,18 @@ services:
     image: mariadb:11.3.2
     container_name: mariadb
     restart: always
-    ports: 
-      - 3306:3306
     volumes:
       - mariadb-data:/var/lib/mysql:Z
     environment:
       MYSQL_ROOT_PASSWORD: ${DB_PASSWORD}
     networks:
-      - mariadb-man
       - db-con
+      - mariadb-man
 
   phpmyadmin:
     image: phpmyadmin:latest
     restart: always
     container_name: phpmyadmin
-    ports:
-      - 8081:80
     environment:
       - PMA_ARBITRARY=0
       - PMA_HOST=mariadb
@@ -27,6 +23,12 @@ services:
     networks:
       - reverse-proxy
       - mariadb-man
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.phpmyadmin.rule=Host(`db.rotarypub.se`)"
+      - "traefik.http.routers.phpmyadmin.entrypoints=websecure"
+
+
 networks:
   reverse-proxy:
     external: true
@@ -36,3 +38,5 @@ networks:
 
 volumes:
   mariadb-data:
+    external: true
+    name: "database_mariadb-data"
